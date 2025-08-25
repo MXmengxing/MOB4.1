@@ -16,7 +16,7 @@ try:
         error_turn = (CR - CL)
 
         forward_speed = error_forward * 8
-        turn_speed    = error_turn * 20
+        turn_speed    = error_turn * 5
 
         left_speed  = forward_speed - turn_speed
         right_speed = forward_speed + turn_speed
@@ -29,3 +29,4 @@ except KeyboardInterrupt:
     print('over')
     alvik.stop()
     sys.exit()
+
