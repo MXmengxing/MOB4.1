@@ -10,11 +10,18 @@ reference = 10.0
 try:
     while True:
         L, CL, C, CR, R = alvik.get_distance()
-        print(f'C: {C}')
+        print(f'L:{L:.1f} CL:{CL:.1f} C:{C:.1f} CR:{CR:.1f} R:{R:.1f}')
 
-        error = C - reference
+        error_forward = C - reference
+        error_turn = (CR - CL)
 
-        alvik.set_wheels_speed(error * 10, error * 10)
+        forward_speed = error_forward * 8
+        turn_speed    = error_turn * 20
+
+        left_speed  = forward_speed - turn_speed
+        right_speed = forward_speed + turn_speed
+
+        alvik.set_wheels_speed(left_speed, right_speed)
 
         sleep_ms(100)
 
