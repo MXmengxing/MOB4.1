@@ -1,0 +1,17 @@
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\bin\Debug\net8.0-windows\Quizmester.exe
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\bin\Debug\net8.0-windows\Quizmester.deps.json
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\bin\Debug\net8.0-windows\Quizmester.runtimeconfig.json
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\bin\Debug\net8.0-windows\Quizmester.dll
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\bin\Debug\net8.0-windows\Quizmester.pdb
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.Form1.resources
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.csproj.GenerateResource.cache
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.GeneratedMSBuildEditorConfig.editorconfig
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.AssemblyInfoInputs.cache
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.AssemblyInfo.cs
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.csproj.CoreCompileInputs.cache
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.sourcelink.json
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.dll
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\refint\Quizmester.dll
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.pdb
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\Quizmester.genruntimeconfig.cache
+C:\xampp\htdocs\MOB4.1\APPR\Quizmester\Quizmester\obj\Debug\net8.0-windows\ref\Quizmester.dll
