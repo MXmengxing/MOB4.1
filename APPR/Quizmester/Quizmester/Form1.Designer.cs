@@ -28,68 +28,69 @@
         /// </summary>
         private void InitializeComponent()
         {
-            textBox1 = new TextBox();
-            button1 = new Button();
-            button2 = new Button();
-            dataGridView1 = new DataGridView();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            txbSearch = new TextBox();
+            btnSearch = new Button();
+            Reset = new Button();
+            dgvInformation = new DataGridView();
+            ((System.ComponentModel.ISupportInitialize)dgvInformation).BeginInit();
             SuspendLayout();
             // 
-            // textBox1
+            // txbSearch
             // 
-            textBox1.Location = new Point(13, 12);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(135, 27);
-            textBox1.TabIndex = 0;
+            txbSearch.Location = new Point(13, 12);
+            txbSearch.Name = "txbSearch";
+            txbSearch.Size = new Size(135, 27);
+            txbSearch.TabIndex = 0;
             // 
-            // button1
+            // btnSearch
             // 
-            button1.Location = new Point(154, 12);
-            button1.Name = "button1";
-            button1.Size = new Size(110, 27);
-            button1.TabIndex = 1;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
+            btnSearch.Location = new Point(154, 12);
+            btnSearch.Name = "btnSearch";
+            btnSearch.Size = new Size(110, 27);
+            btnSearch.TabIndex = 1;
+            btnSearch.Text = "Search";
+            btnSearch.UseVisualStyleBackColor = true;
+            btnSearch.Click += btnSearch_Click;
             // 
-            // button2
+            // Reset
             // 
-            button2.Location = new Point(270, 12);
-            button2.Name = "button2";
-            button2.Size = new Size(104, 27);
-            button2.TabIndex = 2;
-            button2.Text = "button2";
-            button2.UseVisualStyleBackColor = true;
+            Reset.Location = new Point(270, 12);
+            Reset.Name = "Reset";
+            Reset.Size = new Size(104, 27);
+            Reset.TabIndex = 2;
+            Reset.Text = "Reset";
+            Reset.UseVisualStyleBackColor = true;
             // 
-            // dataGridView1
+            // dgvInformation
             // 
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(13, 68);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.RowHeadersWidth = 51;
-            dataGridView1.Size = new Size(770, 363);
-            dataGridView1.TabIndex = 3;
+            dgvInformation.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvInformation.Location = new Point(13, 68);
+            dgvInformation.Name = "dgvInformation";
+            dgvInformation.RowHeadersWidth = 51;
+            dgvInformation.Size = new Size(770, 363);
+            dgvInformation.TabIndex = 3;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(dataGridView1);
-            Controls.Add(button2);
-            Controls.Add(button1);
-            Controls.Add(textBox1);
+            Controls.Add(dgvInformation);
+            Controls.Add(Reset);
+            Controls.Add(btnSearch);
+            Controls.Add(txbSearch);
             Name = "Form1";
             Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvInformation).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private TextBox textBox1;
-        private Button button1;
-        private Button button2;
-        private DataGridView dataGridView1;
+        private TextBox txbSearch;
+        private Button btnSearch;
+        private Button Reset;
+        private DataGridView dgvInformation;
     }
 }
