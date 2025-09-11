@@ -13,6 +13,7 @@
     <thead>
       <tr>
         <th>ID</th>
+        <th>Afbeelding</th>
         <th>Naam</th>
         <th>Prijs</th>
         <th>Acties</th>
@@ -22,6 +23,11 @@
       @forelse(($products ?? []) as $p)
         <tr>
           <td>{{ $p->id }}</td>
+          <td>
+            @if($p->image)
+              <img src="{{ asset('storage/'.$p->image) }}" alt="{{ $p->name }}" style="height:60px">
+            @endif
+          </td>
           <td><a href="{{ route('products.show', $p) }}">{{ $p->name }}</a></td>
           <td>€ {{ number_format($p->price, 2) }}</td>
           <td>

@@ -7,7 +7,13 @@
 <body>
   <h1>Nieuw product</h1>
 
-  <form method="POST" action="{{ route('products.store') }}">
+  @if ($errors->any())
+    <p style="color:#b91c1c;">
+      {{ $errors->first() }}
+    </p>
+  @endif
+
+  <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
     @csrf
 
     <p>
@@ -23,6 +29,11 @@
     <p>
       <label>Prijs (€) *</label><br>
       <input type="number" name="price" step="0.01" min="0" value="{{ old('price') }}" required>
+    </p>
+
+    <p>
+      <label>Afbeelding *</label><br>
+      <input type="file" name="image" required>
     </p>
 
     <button type="submit">Opslaan</button>
