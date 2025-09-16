@@ -1,43 +1,45 @@
-<!doctype html>
-<html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <title>Nieuw product</title>
-</head>
-<body>
+@extends('layouts.layout')
+
+@section('title','Nieuw product')
+
+@section('content')
   <h1>Nieuw product</h1>
 
-  @if ($errors->any())
-    <p style="color:#b91c1c;">
-      {{ $errors->first() }}
-    </p>
-  @endif
-
-  <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
+  <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="card">
     @csrf
 
-    <p>
-      <label>Naam *</label><br>
-      <input type="text" name="name" value="{{ old('name') }}" required>
-    </p>
+    <div class="row">
+      <div class="col">
+        <div class="field">
+          <label>Naam *</label>
+          <input type="text" name="name" value="{{ old('name') }}" required>
+          @error('name') <div style="color:#b91c1c;margin-top:6px">{{ $message }}</div> @enderror
+        </div>
+      </div>
+      <div class="col">
+        <div class="field">
+          <label>Prijs (€) *</label>
+          <input type="number" step="0.01" min="0" name="price" value="{{ old('price') }}" required>
+          @error('price') <div style="color:#b91c1c;margin-top:6px">{{ $message }}</div> @enderror
+        </div>
+      </div>
+    </div>
 
-    <p>
-      <label>Omschrijving *</label><br>
-      <textarea name="description" rows="4" required>{{ old('description') }}</textarea>
-    </p>
+    <div class="field">
+      <label>Omschrijving *</label>
+      <textarea name="description" rows="5" required>{{ old('description') }}</textarea>
+      @error('description') <div style="color:#b91c1c;margin-top:6px">{{ $message }}</div> @enderror
+    </div>
 
-    <p>
-      <label>Prijs (€) *</label><br>
-      <input type="number" name="price" step="0.01" min="0" value="{{ old('price') }}" required>
-    </p>
-
-    <p>
-      <label>Afbeelding *</label><br>
+    <div class="field">
+      <label>Afbeelding *</label>
       <input type="file" name="image" required>
-    </p>
+      @error('image') <div style="color:#b91c1c;margin-top:6px">{{ $message }}</div> @enderror
+    </div>
 
-    <button type="submit">Opslaan</button>
-    <a href="{{ route('products.index') }}">Terug</a>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" type="submit">Opslaan</button>
+      <a class="btn btn-secondary" href="{{ route('products.index') }}">Terug</a>
+    </div>
   </form>
-</body>
-</html>
+@endsection

@@ -1,34 +1,28 @@
-<!doctype html>
-<html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <title>{{ $product->name }} - Product</title>
-</head>
-<body>
-  <p><a href="{{ route('products.index') }}">← Terug naar overzicht</a></p>
+@extends('layouts.layout')
 
-  <h1>{{ $product->name }}</h1>
+@section('title', $product->name.' - Product')
 
-  @if($product->image)
-    <p>
-      <img src="{{ asset('storage/'.$product->image) }}"
-           alt="{{ $product->name }}"
-           style="max-width:300px;height:auto">
-    </p>
-  @endif
+@section('content')
+  <div class="card">
+    <p><a class="btn btn-secondary" href="{{ route('products.index') }}">← Terug naar overzicht</a></p>
 
-  <p><strong>Prijs:</strong> € {{ number_format($product->price, 2) }}</p>
+    <h1 style="margin-top:0">{{ $product->name }}</h1>
 
-  <h3>Omschrijving</h3>
-  <p>{!! nl2br(e($product->description)) !!}</p>
+    @if($product->image)
+      <p><img src="{{ asset('storage/'.$product->image) }}" alt="{{ $product->name }}" style="max-width:360px;height:auto;border-radius:12px"></p>
+    @endif
 
-  <p>
-    <a href="{{ route('products.edit', $product) }}">Bewerken</a>
-    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline">
-      @csrf
-      @method('DELETE')
-      <button onclick="return confirm('Weet je zeker dat je dit wilt verwijderen?')">Verwijderen</button>
-    </form>
-  </p>
-</body>
-</html>
+    <p><strong>Prijs:</strong> € {{ number_format($product->price, 2) }}</p>
+
+    <h3>Omschrijving</h3>
+    <p>{!! nl2br(e($product->description)) !!}</p>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <a class="btn btn-secondary" href="{{ route('products.edit',$product) }}">Bewerken</a>
+      <form action="{{ route('products.destroy',$product) }}" method="POST" onsubmit="return confirm('Weet je zeker dat je dit wilt verwijderen?')">
+        @csrf @method('DELETE')
+        <button class="btn btn-danger" type="submit">Verwijderen</button>
+      </form>
+    </div>
+  </div>
+@endsection
