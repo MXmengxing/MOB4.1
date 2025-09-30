@@ -1,0 +1,15 @@
+#global-data-header {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+#global-data-header span {
+	font-weight: bold;
+	color: #428bca;
+}
+
+.sprite-icons {
+	display: block;
+	float: left;
+	margin-right: 10px;
+}

@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+
+    // public function __construct()
+    // {
+    //     $this->middleware('auth')->except(['index','show']);
+    // }
+
     public function index() {
         $products = Product::latest()->paginate(10);
         return view('products.index', compact('products'));

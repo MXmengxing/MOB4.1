@@ -41,13 +41,13 @@
         {{#data}}
         <tr data-id="{{id}}" data-symbol="{{symbol}}">
           <td>{{symbol}}</td>
-          <td class="crypto-name">{{name}}</td>
+          <td class="crypto-name">{{name}}</td>``
           <td class="text-end crypto-price">{{pricePretty}}</td>
           <td class="text-end">{{marketCapPretty}}</td>
           <td class="text-end">{{volume24hPretty}}</td>
           <td><button type="button" class="btn btn-sm btn-secondary coin-info-btn" data-id="{{id}}" data-symbol="{{symbol}}" data-bs-toggle="modal" data-bs-target="#coinModal">Info</button></td>
           <td><button type="button" class="btn btn-sm btn-primary btn-open-modal-cryptofolio" data-bs-toggle="modal" data-bs-target="#exampleModal">Add to wallet</button></td>
-        </tr>
+        </tr>``
         {{/data}}
       </template>
     </tbody>
@@ -99,7 +99,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.1.0/mustache.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="assets/js/main.js"></script>
 
-<script src="assets/js/main.js?v=4"></script>
 </body>
 </html>
