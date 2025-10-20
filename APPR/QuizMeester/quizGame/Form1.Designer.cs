@@ -239,8 +239,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.Yellow;
-            this.pictureBox1.Image = global::quizGame.Properties.Resources.questions;
+            this.pictureBox1.Image = global::quizGame.Properties.Resources.ph;
             this.pictureBox1.Location = new System.Drawing.Point(83, 150);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
