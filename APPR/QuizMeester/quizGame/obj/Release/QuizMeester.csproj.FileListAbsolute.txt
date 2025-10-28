@@ -18,3 +18,6 @@ C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\QuizMeester.csproj.
 C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\QuizMeester.csproj.CoreCompileInputs.cache
 C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.exe
 C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.pdb
+C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.LoginForm.resources
+C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.RegisterForm.resources
+C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.ScoreboardForm.resources

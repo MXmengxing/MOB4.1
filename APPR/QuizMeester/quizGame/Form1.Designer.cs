@@ -44,6 +44,10 @@
             this.currentQuestion = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.correctAnswersLabel = new System.Windows.Forms.Label();
+            this.lblQuestionTime = new System.Windows.Forms.Label();
+            this.lblQuizTime = new System.Windows.Forms.Label();
+            this.btnSkip = new System.Windows.Forms.Button();
+            this.btnScoreboard = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -261,12 +265,61 @@
             this.correctAnswersLabel.TabIndex = 2;
             this.correctAnswersLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // lblQuestionTime
+            // 
+            this.lblQuestionTime.AutoSize = true;
+            this.lblQuestionTime.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.lblQuestionTime.Location = new System.Drawing.Point(1160, 478);
+            this.lblQuestionTime.Name = "lblQuestionTime";
+            this.lblQuestionTime.Size = new System.Drawing.Size(85, 16);
+            this.lblQuestionTime.TabIndex = 8;
+            this.lblQuestionTime.Text = "Vraag tijd: --s";
+            // 
+            // lblQuizTime
+            // 
+            this.lblQuizTime.AutoSize = true;
+            this.lblQuizTime.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.lblQuizTime.Location = new System.Drawing.Point(1160, 505);
+            this.lblQuizTime.Name = "lblQuizTime";
+            this.lblQuizTime.Size = new System.Drawing.Size(78, 16);
+            this.lblQuizTime.TabIndex = 9;
+            this.lblQuizTime.Text = "Quiz tijd: --:--";
+            // 
+            // btnSkip
+            // 
+            this.btnSkip.Location = new System.Drawing.Point(1428, 472);
+            this.btnSkip.Name = "btnSkip";
+            this.btnSkip.Size = new System.Drawing.Size(111, 34);
+            this.btnSkip.TabIndex = 10;
+            this.btnSkip.Text = "Overslaan";
+            this.btnSkip.UseVisualStyleBackColor = true;
+            this.btnSkip.Click += new System.EventHandler(this.btnSkip_Click);
+            // 
+            // btnScoreboard
+            // 
+            this.btnScoreboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(31)))), ((int)(((byte)(31)))));
+            this.btnScoreboard.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnScoreboard.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnScoreboard.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnScoreboard.Location = new System.Drawing.Point(1712, 350);
+            this.btnScoreboard.Margin = new System.Windows.Forms.Padding(4);
+            this.btnScoreboard.Name = "btnScoreboard";
+            this.btnScoreboard.Size = new System.Drawing.Size(184, 92);
+            this.btnScoreboard.TabIndex = 11;
+            this.btnScoreboard.Text = "Scorebord";
+            this.btnScoreboard.UseVisualStyleBackColor = false;
+            this.btnScoreboard.Click += new System.EventHandler(this.btnScoreboard_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(21)))), ((int)(((byte)(21)))), ((int)(((byte)(21)))));
             this.ClientSize = new System.Drawing.Size(2052, 998);
+            this.Controls.Add(this.btnScoreboard);
+            this.Controls.Add(this.btnSkip);
+            this.Controls.Add(this.lblQuizTime);
+            this.Controls.Add(this.lblQuestionTime);
             this.Controls.Add(this.FullScreenBtn);
             this.Controls.Add(this.ExitFullScreenBtn);
             this.Controls.Add(this.PlayAgainButton);
@@ -291,6 +344,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -311,6 +365,10 @@
         private System.Windows.Forms.Button FullScreenBtn;
         private System.Windows.Forms.Label currentQuestion;
         private System.Windows.Forms.Label correctAnswersLabel;
+        private System.Windows.Forms.Label lblQuestionTime;
+        private System.Windows.Forms.Label lblQuizTime;
+        private System.Windows.Forms.Button btnSkip;
+        private System.Windows.Forms.Button btnScoreboard;
     }
 }
 
