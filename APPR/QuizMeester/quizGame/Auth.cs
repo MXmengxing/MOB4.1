@@ -5,6 +5,9 @@ using System.Data.SqlClient;
 
 namespace quizGame
 {
+    /// <summary>
+    /// 已登录用户信息（运行时存储）
+    /// </summary>
     public class LoggedInUser
     {
         public int Id;
@@ -12,13 +15,20 @@ namespace quizGame
         public int RoleId;
     }
 
+    /// <summary>
+    /// 登录与注册逻辑
+    /// </summary>
     public static class Auth
     {
+        // 从 App.config 读取连接字符串
         private static readonly string cs =
             ConfigurationManager.ConnectionStrings["QuizDb"].ConnectionString;
 
+        // 当前登录的用户（全局保存）
+        public static LoggedInUser CurrentUser;
+
         /// <summary>
-        /// 注册：明文密码写入 password_hash 列（作业允许明文）
+        /// 注册用户（明文密码写入 password_hash 列——作业允许）
         /// </summary>
         public static bool Register(string username, string password, out string error)
         {
@@ -45,7 +55,7 @@ namespace quizGame
                 }
                 catch (SqlException ex)
                 {
-                    // 2627 / 2601 = 唯一键冲突（用户名已存在）
+                    // 唯一键冲突（用户名已存在）
                     if (ex.Number == 2627 || ex.Number == 2601)
                         error = "Gebruikersnaam bestaat al.";
                     else
@@ -56,7 +66,7 @@ namespace quizGame
         }
 
         /// <summary>
-        /// 登录：按用户名取一行，比较明文密码
+        /// 登录验证
         /// </summary>
         public static LoggedInUser Login(string username, string password)
         {
@@ -76,17 +86,20 @@ namespace quizGame
                 {
                     if (!r.Read()) return null;
 
-                    // 更稳的取值方式（处理 DBNull / 类型不匹配）
                     string stored = Convert.ToString(r["password_hash"]) ?? string.Empty;
 
                     if (stored.Trim() == password.Trim())
                     {
-                        return new LoggedInUser
+                        var user = new LoggedInUser
                         {
                             Id = Convert.ToInt32(r["id"]),
                             Username = Convert.ToString(r["username"]),
                             RoleId = Convert.ToInt32(r["role_id"])
                         };
+
+                        // 登录成功 → 全局保存
+                        CurrentUser = user;
+                        return user;
                     }
 
                     return null;

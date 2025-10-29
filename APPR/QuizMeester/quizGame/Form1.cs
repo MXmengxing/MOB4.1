@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Linq;
+using System.Media;               // 用于播放特殊题提示音
 using System.Windows.Forms;
 
 namespace quizGame
@@ -30,7 +33,7 @@ namespace quizGame
         // 每题剩余时间（秒）
         private int _qTimeLeft = 0;
 
-        // 整场剩余时间（秒）——可自行调整总时长（例如 180 = 3 分钟）
+        // 整场剩余时间（秒）
         private int _quizTimeLeft = 180;
 
         // 整场计时是否已启动（只在第一题启动一次）
@@ -43,8 +46,22 @@ namespace quizGame
         // === 跳过功能（只允许一次） ===
         private bool _hasSkipped = false;
 
+        // === 50/50 功能 ===
+        private bool _used5050 = false;  // 是否已经使用过
+
         // === 玩家名（用于保存到 scores.username_snapshot）===
-        private string _playerName = "Gast"; // 没有登录时就用“Gast”
+        private string _playerName = "Gast"; // 默认访客名（你是强制登录，这里只是兜底）
+
+        // === Special Question（特殊题） ===
+        private readonly Random _rand = new Random();
+        private int _specialQuestionIndex = -1;   // 本次游戏的特殊题是第几题（1-based），位于前20题内
+        private const int _specialBonus = 2;      // 答对特殊题的额外加分（在原本+1基础上再+2）
+        private bool _isSpecialNow = false;       // 当前是否处于特殊题
+
+        // 记录原始配色，便于恢复
+        private Color _origFormBackColor;
+        private Color _origQuestionForeColor;
+        private Color _origQuestionBackColor;
 
         public Form1()
         {
@@ -70,7 +87,7 @@ namespace quizGame
 
             // 开局跳过按钮可用
             if (btnSkip != null) btnSkip.Enabled = true;
-
+            if (btn5050 != null) btn5050.Enabled = true;
             // 构建题序并开始
             BuildQuestionOrder();
 
@@ -82,19 +99,26 @@ namespace quizGame
                 return;
             }
 
+            // 记录原始配色
+            _origFormBackColor = this.BackColor;
+            _origQuestionForeColor = lblQuestion.ForeColor;
+            _origQuestionBackColor = lblQuestion.BackColor;
+
+            // 生成“特殊题”位置：随机 1..min(20, totalQuestions)
+            int specialMax = Math.Min(20, totalQuestions);
+            if (specialMax >= 1)
+            {
+                _specialQuestionIndex = _rand.Next(1, specialMax + 1);
+            }
+
+            // 从登录态设置玩家名（你项目是强制登录，这里会拿到用户名；兜底保留“Gast”）
+            if (Auth.CurrentUser != null && !string.IsNullOrWhiteSpace(Auth.CurrentUser.Username))
+                _playerName = Auth.CurrentUser.Username.Trim();
+
             askQuestion(questionNumber);
         }
 
-        /// <summary>
-        /// 从登录窗体设置玩家名（可选）
-        /// </summary>
-        public void SetPlayer(string username)
-        {
-            if (!string.IsNullOrWhiteSpace(username))
-                _playerName = username.Trim();
-        }
-
-        // 生成本次测验题序（最多 20 题）
+        /// <summary>生成本次测验题序（最多 20 题）</summary>
         private void BuildQuestionOrder()
         {
             int limit = 20;
@@ -118,7 +142,7 @@ namespace quizGame
             }
         }
 
-        // 点击答案（所有答案按钮共用）
+        /// <summary>点击答案（所有答案按钮共用）</summary>
         private void ClickAnswerEvent(object sender, EventArgs e)
         {
             // 停止本题计时，避免多减
@@ -129,7 +153,8 @@ namespace quizGame
 
             if (buttonTag == correctAnswer)
             {
-                score++;
+                score++;                         // 普通题 +1
+                if (_isSpecialNow) score += _specialBonus;  // 特殊题额外 +2
                 correctAnswers++;
                 currentQuestionNumber++;
                 senderObject.BackColor = Color.DarkGreen;
@@ -161,7 +186,7 @@ namespace quizGame
             }
         }
 
-        // 出题 + 启动计时
+        /// <summary>出题 + 启动计时</summary>
         private void askQuestion(int qnum)
         {
             if (qnum < 1 || qnum > questionOrder.Count) return;
@@ -249,6 +274,27 @@ namespace quizGame
                 MessageBox.Show("Antwoord sleutel ontbreekt voor vraag (id=" + qid + ").", "Fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+            // —— Special Question 标记/样式/音效 —— 
+            _isSpecialNow = (qnum == _specialQuestionIndex);
+            if (_isSpecialNow)
+            {
+                // 显眼的样式（按需自定义）
+                this.BackColor = Color.MediumPurple;
+                lblQuestion.ForeColor = Color.Yellow;
+                lblQuestion.BackColor = Color.FromArgb(32, 0, 0, 0);
+
+                try
+                {
+                    // 若有自带 wav，可改为 new SoundPlayer("special.wav").Play();
+                    SystemSounds.Asterisk.Play();
+                }
+                catch { /* 忽略声音异常 */ }
+            }
+            else
+            {
+                RestoreNormalTheme();
+            }
+
             // === 启动“每题倒计时” ===
             _qTimeLeft = perQuestionSeconds > 0 ? perQuestionSeconds : 15;
             if (lblQuestionTime != null)
@@ -273,6 +319,10 @@ namespace quizGame
 
             // === 跳过按钮：没用过就启用，用过就禁用 ===
             if (btnSkip != null) btnSkip.Enabled = !_hasSkipped;
+
+            // 50/50 按钮每题都可使用一次（也可以改成整场一次）
+            if (btn5050 != null) btn5050.Enabled = !_used5050;
+
         }
 
         private void QuestionTimer_Tick(object sender, EventArgs e)
@@ -339,15 +389,18 @@ namespace quizGame
             return $"Quiz tijd: {m:00}:{s:00}";
         }
 
-        // 统一收尾（最后一题 / 单题超时 / 总时到 都调这里）
+        /// <summary>统一收尾（最后一题 / 单题超时 / 总时到 都调这里）</summary>
         private void FinishQuiz()
         {
             _questionTimer.Stop();
             _quizTimer.Stop();
 
+            // 恢复普通主题
+            RestoreNormalTheme();
+
             percentage = (int)Math.Round((double)(100 * score) / Math.Max(1, totalQuestions));
 
-            // —— 先保存分数到数据库（username_snapshot / score / created_at）——
+            // 先保存分数到数据库
             SaveScore(_playerName, score);
 
             var dialogResult = MessageBox.Show(
@@ -376,7 +429,7 @@ namespace quizGame
 
                 // 重置计时
                 _quizStarted = false;
-                _quizTimeLeft = 180; // 重新给总时长
+                _quizTimeLeft = 180;
                 if (lblQuizTime != null)
                 {
                     lblQuizTime.Text = FormatQuizTime(_quizTimeLeft);
@@ -392,12 +445,23 @@ namespace quizGame
                 _hasSkipped = false;
                 if (btnSkip != null) btnSkip.Enabled = true;
 
+                // 重新生成“特殊题”位置（下一局重新随机）
+                int specialMax = Math.Min(20, totalQuestions);
+                _specialQuestionIndex = specialMax >= 1 ? _rand.Next(1, specialMax + 1) : -1;
+
                 askQuestion(questionNumber);
             }
             else
             {
                 this.Close();
             }
+        }
+
+        private void RestoreNormalTheme()
+        {
+            this.BackColor = _origFormBackColor;
+            lblQuestion.ForeColor = _origQuestionForeColor;
+            lblQuestion.BackColor = _origQuestionBackColor;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -421,7 +485,6 @@ namespace quizGame
 
         private void finishClick(object sender, EventArgs e)
         {
-            // 结束按钮也要停表
             _questionTimer?.Stop();
             _quizTimer?.Stop();
             this.Close();
@@ -431,7 +494,6 @@ namespace quizGame
         {
             if (questionNumber > 1)
             {
-                // 停表 + 重置状态
                 _questionTimer.Stop();
                 _quizTimer.Stop();
 
@@ -461,9 +523,12 @@ namespace quizGame
                     lblQuestionTime.ForeColor = _timeNormal;
                 }
 
-                // 重置跳过
                 _hasSkipped = false;
                 if (btnSkip != null) btnSkip.Enabled = true;
+
+                // 重新生成“特殊题”位置
+                int specialMax = Math.Min(20, totalQuestions);
+                _specialQuestionIndex = specialMax >= 1 ? _rand.Next(1, specialMax + 1) : -1;
 
                 askQuestion(questionNumber);
             }
@@ -499,12 +564,11 @@ namespace quizGame
         {
             using (var sb = new ScoreboardForm())
             {
-                sb.ShowDialog(this); // 模态显示
+                sb.ShowDialog(this);
             }
         }
 
-        // ===== 保存分数到 scores（username_snapshot / score / created_at）=====
-        // 可选 userId：以后接入登录时可以加上（目前没用就不传）
+        // ===== 保存分数到 scores（username_snapshot / score / created_at / user_id）=====
         private void SaveScore(string username, int scoreValue)
         {
             try
@@ -513,35 +577,45 @@ namespace quizGame
                 {
                     con.Open();
 
-                    // 尝试查找用户ID
                     int? userId = null;
-                    using (var find = new SqlCommand(
-                        "SELECT id FROM dbo.users WHERE username = @u", con))
+                    string snapshot = string.IsNullOrWhiteSpace(username) ? "Onbekend" : username.Trim();
+
+                    // 你是强制登录：优先取登录的用户ID
+                    if (Auth.CurrentUser != null)
+                        userId = Auth.CurrentUser.Id;
+
+                    // 兜底：如果 CurrentUser 为 null，尝试按用户名查询
+                    if (!userId.HasValue)
                     {
-                        find.Parameters.AddWithValue("@u", username ?? "Gast");
-                        var obj = find.ExecuteScalar();
-                        if (obj != null && obj != DBNull.Value)
-                            userId = Convert.ToInt32(obj);
+                        using (var find = new SqlCommand("SELECT id FROM dbo.users WHERE username=@u;", con))
+                        {
+                            find.Parameters.Add("@u", SqlDbType.NVarChar, 100).Value = snapshot;
+                            var obj = find.ExecuteScalar();
+                            if (obj != null && obj != DBNull.Value)
+                                userId = Convert.ToInt32(obj);
+                        }
                     }
 
-                    string sql;
-                    if (userId.HasValue)
+                    // 最后再兜底一次：如果依旧没有 userId，就创建一个“Guest”用户（可选）
+                    if (!userId.HasValue)
                     {
-                        sql = "INSERT INTO dbo.scores(user_id, username_snapshot, score, created_at) " +
-                              "VALUES(@uid, @u, @s, GETDATE());";
-                    }
-                    else
-                    {
-                        // 这里会向 user_id 写 NULL —— 需要配合方案 A，使 user_id 允许为 NULL
-                        sql = "INSERT INTO dbo.scores(user_id, username_snapshot, score, created_at) " +
-                              "VALUES(NULL, @u, @s, GETDATE());";
+                        using (var insUser = new SqlCommand(
+                            "INSERT INTO dbo.users(username,password_hash,role_id,created_at) OUTPUT INSERTED.id VALUES(@u,'',1,GETDATE());",
+                            con))
+                        {
+                            insUser.Parameters.Add("@u", SqlDbType.NVarChar, 100).Value = snapshot;
+                            userId = Convert.ToInt32(insUser.ExecuteScalar());
+                        }
                     }
 
-                    using (var cmd = new SqlCommand(sql, con))
+                    // 此处 user_id 一定有值，避免 NULL 违反约束
+                    using (var cmd = new SqlCommand(
+                        @"INSERT INTO dbo.scores(user_id, username_snapshot, score, created_at)
+                          VALUES(@uid, @u, @s, GETDATE());", con))
                     {
-                        if (userId.HasValue) cmd.Parameters.AddWithValue("@uid", userId.Value);
-                        cmd.Parameters.AddWithValue("@u", string.IsNullOrWhiteSpace(username) ? "Onbekend" : username);
-                        cmd.Parameters.AddWithValue("@s", scoreValue);
+                        cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId.Value;
+                        cmd.Parameters.Add("@u", SqlDbType.NVarChar, 100).Value = snapshot;
+                        cmd.Parameters.Add("@s", SqlDbType.Int).Value = scoreValue;
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -552,6 +626,50 @@ namespace quizGame
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        private void btn5050_Click(object sender, EventArgs e)
+        {
+            // 已用过则禁用
+            if (_used5050)
+            {
+                btn5050.Enabled = false;
+                MessageBox.Show("Je hebt al de 50/50 gebruikt.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
+            _used5050 = true;
+            btn5050.Enabled = false;
+
+            // 找出错误的三个答案
+            var btns = new[] { button1, button2, button3, button4 };
+            var wrongIndices = new List<int>();
+
+            for (int i = 0; i < btns.Length; i++)
+            {
+                int tag = Convert.ToInt32(btns[i].Tag);
+                if (tag != correctAnswer) wrongIndices.Add(i);
+            }
+
+            // 随机禁用其中两个错误选项
+            if (wrongIndices.Count >= 2)
+            {
+                var rand = new Random();
+                var toDisable = wrongIndices.OrderBy(x => rand.Next()).Take(2).ToList();
+                foreach (var i in toDisable)
+                {
+                    btns[i].Enabled = false;
+                    btns[i].BackColor = Color.Gray;
+                }
+            }
+
+            // 留下正确答案和一个错误答案，提升正确率到 50%
+        }
+
+        private void btnSpecialQuiz_Click(object sender, EventArgs e)
+        {
+            using (var sq = new SpecialQuizForm())
+            {
+                sq.ShowDialog(this);
+            }
+        }
     }
 }

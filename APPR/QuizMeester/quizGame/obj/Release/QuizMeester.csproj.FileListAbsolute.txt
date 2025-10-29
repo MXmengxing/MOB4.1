@@ -21,3 +21,6 @@ C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.pdb
 C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.LoginForm.resources
 C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.RegisterForm.resources
 C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.ScoreboardForm.resources
+C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.AdminForm.resources
+C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.AnswerEditorForm.resources
+C:\xampp\htdocs\MOB4.1\APPR\QuizMeester\quizGame\obj\Release\quizGame.SpecialQuizForm.resources

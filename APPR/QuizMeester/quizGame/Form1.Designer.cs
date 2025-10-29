@@ -48,6 +48,8 @@
             this.lblQuizTime = new System.Windows.Forms.Label();
             this.btnSkip = new System.Windows.Forms.Button();
             this.btnScoreboard = new System.Windows.Forms.Button();
+            this.btn5050 = new System.Windows.Forms.Button();
+            this.btnSpecialQuiz = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -243,7 +245,6 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::quizGame.Properties.Resources.ph;
             this.pictureBox1.Location = new System.Drawing.Point(83, 150);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
@@ -310,12 +311,39 @@
             this.btnScoreboard.UseVisualStyleBackColor = false;
             this.btnScoreboard.Click += new System.EventHandler(this.btnScoreboard_Click);
             // 
+            // btn5050
+            // 
+            this.btn5050.Location = new System.Drawing.Point(1311, 472);
+            this.btn5050.Name = "btn5050";
+            this.btn5050.Size = new System.Drawing.Size(111, 34);
+            this.btn5050.TabIndex = 12;
+            this.btn5050.Text = "50/50";
+            this.btn5050.UseVisualStyleBackColor = true;
+            this.btn5050.Click += new System.EventHandler(this.btn5050_Click);
+            // 
+            // btnSpecialQuiz
+            // 
+            this.btnSpecialQuiz.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(31)))), ((int)(((byte)(31)))));
+            this.btnSpecialQuiz.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.btnSpecialQuiz.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSpecialQuiz.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.btnSpecialQuiz.Location = new System.Drawing.Point(1904, 350);
+            this.btnSpecialQuiz.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSpecialQuiz.Name = "btnSpecialQuiz";
+            this.btnSpecialQuiz.Size = new System.Drawing.Size(184, 92);
+            this.btnSpecialQuiz.TabIndex = 13;
+            this.btnSpecialQuiz.Text = "Special Quiz";
+            this.btnSpecialQuiz.UseVisualStyleBackColor = false;
+            this.btnSpecialQuiz.Click += new System.EventHandler(this.btnSpecialQuiz_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(21)))), ((int)(((byte)(21)))), ((int)(((byte)(21)))));
             this.ClientSize = new System.Drawing.Size(2052, 998);
+            this.Controls.Add(this.btnSpecialQuiz);
+            this.Controls.Add(this.btn5050);
             this.Controls.Add(this.btnScoreboard);
             this.Controls.Add(this.btnSkip);
             this.Controls.Add(this.lblQuizTime);
@@ -369,6 +397,8 @@
         private System.Windows.Forms.Label lblQuizTime;
         private System.Windows.Forms.Button btnSkip;
         private System.Windows.Forms.Button btnScoreboard;
+        private System.Windows.Forms.Button btn5050;
+        private System.Windows.Forms.Button btnSpecialQuiz;
     }
 }
 

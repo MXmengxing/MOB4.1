@@ -63,6 +63,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AdminForm.Designer.cs">
+      <DependentUpon>AdminForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AnswerEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Auth.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -78,6 +87,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="RegisterForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,6 +104,18 @@
     <Compile Include="ScoreboardForm.Designer.cs">
       <DependentUpon>ScoreboardForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SpecialQuizForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SpecialQuizForm.Designer.cs">
+      <DependentUpon>SpecialQuizForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="AdminForm.resx">
+      <DependentUpon>AdminForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AnswerEditorForm.resx">
+      <DependentUpon>AnswerEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -98,19 +124,17 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="RegisterForm.resx">
       <DependentUpon>RegisterForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ScoreboardForm.resx">
       <DependentUpon>ScoreboardForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SpecialQuizForm.resx">
+      <DependentUpon>SpecialQuizForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -126,24 +150,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\csgo.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\fortnite.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\gears of war.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\halo.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\questions.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\witcher3.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
@@ -156,55 +162,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\london.jpeg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\ph.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\moonWalker.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\countires.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\lang.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\leonardoDaVinci.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\coding.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Aristotle.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\earth.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\everest.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\japan.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\oscar.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\brazil.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\mars.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\chrinaGreatWall.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\ironMan.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\sky.jpg" />
+    <None Include="Resources\Image1.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

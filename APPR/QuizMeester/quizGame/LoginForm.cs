@@ -21,18 +21,13 @@ namespace quizGame
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            // 从文本框取用户名/密码（确保你在设计器里把 TextBox 名称设为 txtUser / txtPass）
             var user = Auth.Login(txtUser.Text, txtPass.Text);
+            if (user == null) { MessageBox.Show("Onjuiste gebruikersnaam of wachtwoord."); return; }
 
-            if (user == null)
-            {
-                MessageBox.Show("Onjuiste gebruikersnaam of wachtwoord.");
-                return;
-            }
-
-            CurrentUser = user;
-            this.DialogResult = DialogResult.OK; // 关闭窗口并返回给 Program.cs
+            Auth.CurrentUser = user;         // 直接写到全局
+            this.DialogResult = DialogResult.OK;
         }
+
 
         private void lnkRegister_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
