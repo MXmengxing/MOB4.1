@@ -19,6 +19,8 @@
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
           <li class="nav-item"><a class="nav-link active" href="cryptoportfolio.php">Crypto portfolio</a></li>
+          <li class="nav-item"><a class="nav-link" href="exchanges.php">Exchanges</a></li>
+          <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
         </ul>
       </div>
     </div>

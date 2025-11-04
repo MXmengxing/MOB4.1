@@ -14,13 +14,16 @@ namespace quizGame
         {
             InitializeComponent();
 
-            // 事件绑定（也可以在设计器里设置）
+            // Eventkoppelingen (kan ook via de Designer)
             this.Load += ScoreboardForm_Load;
             btnRefresh.Click += btnRefresh_Click;
             btnClose.Click += btnClose_Click;
         }
 
-        // 窗体加载：初始化表格样式并加载前10
+        // -------------------------------------------------------------
+        // Wanneer het venster geladen wordt:
+        // Stel de DataGridView stijl in en laad de Top 10 scores
+        // -------------------------------------------------------------
         private void ScoreboardForm_Load(object sender, EventArgs e)
         {
             if (dgv != null)
@@ -36,19 +39,26 @@ namespace quizGame
             LoadTop10();
         }
 
-        // 刷新按钮
+        // -------------------------------------------------------------
+        // Klik op “Vernieuwen” → herlaad het scorebord
+        // -------------------------------------------------------------
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             LoadTop10();
         }
 
-        // 关闭按钮
+        // -------------------------------------------------------------
+        // Klik op “Sluiten” → sluit het venster
+        // -------------------------------------------------------------
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        // 读取前10排行榜（按你的表结构：username_snapshot / created_at）
+        // -------------------------------------------------------------
+        // Haal de Top 10 scores op uit de database
+        // (velden: username_snapshot / score / created_at)
+        // -------------------------------------------------------------
         private void LoadTop10()
         {
             try
@@ -67,7 +77,7 @@ namespace quizGame
                     con.Open();
                     da.Fill(dt);
 
-                    // 加 “Rang(名次)” 列
+                    // Voeg een kolom “Rang” toe (positie)
                     var ranked = new DataTable();
                     ranked.Columns.Add("Rang", typeof(int));
                     ranked.Columns.Add("Gebruiker", typeof(string));
@@ -87,6 +97,7 @@ namespace quizGame
 
                     dgv.DataSource = ranked;
 
+                    // Datum mooi opmaken (jjjj-MM-dd HH:mm)
                     if (dgv.Columns["Datum"] != null)
                         dgv.Columns["Datum"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm";
                 }

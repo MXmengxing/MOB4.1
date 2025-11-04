@@ -5,14 +5,14 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
-using System.Media;               // 用于播放特殊题提示音
+using System.Media;               // Voor het afspelen van het geluid bij de speciale vraag
 using System.Windows.Forms;
 
 namespace quizGame
 {
     public partial class Form1 : Form
     {
-        // === 游戏状态 ===
+        // === Spelstatus ===
         int correctAnswer = 0;
         int correctAnswers = 0;
         int wrongAnswers = 0;
@@ -22,43 +22,43 @@ namespace quizGame
         int totalQuestions;
         int currentQuestionNumber = 1;
 
-        // === 题目顺序 ===
+        // === Vraagvolgorde ===
         readonly string _cs = ConfigurationManager.ConnectionStrings["QuizDb"].ConnectionString;
         readonly List<int> questionOrder = new List<int>();
 
-        // === 计时系统 ===
+        // === Timersysteem ===
         private Timer _questionTimer;
         private Timer _quizTimer;
 
-        // 每题剩余时间（秒）
+        // Resttijd per vraag (seconden)
         private int _qTimeLeft = 0;
 
-        // 整场剩余时间（秒）
+        // Resttijd voor de hele quiz (seconden)
         private int _quizTimeLeft = 180;
 
-        // 整场计时是否已启动（只在第一题启动一次）
+        // Is de totaaltimer al gestart (slechts bij de eerste vraag)?
         private bool _quizStarted = false;
 
-        // 时间提醒配色
+        // Kleuren voor tijdswaarschuwingen
         private readonly Color _timeNormal = Color.White;
         private readonly Color _timeWarn = Color.OrangeRed;
 
-        // === 跳过功能（只允许一次） ===
+        // === Overslaan (1 keer toegestaan) ===
         private bool _hasSkipped = false;
 
-        // === 50/50 功能 ===
-        private bool _used5050 = false;  // 是否已经使用过
+        // === 50/50 joker ===
+        private bool _used5050 = false;  // Is 50/50 al gebruikt?
 
-        // === 玩家名（用于保存到 scores.username_snapshot）===
-        private string _playerName = "Gast"; // 默认访客名（你是强制登录，这里只是兜底）
+        // === Spelersnaam (snapshot voor scores.username_snapshot) ===
+        private string _playerName = "Gast"; // Fallback; normaal komt dit uit de login
 
-        // === Special Question（特殊题） ===
+        // === Speciale vraag ===
         private readonly Random _rand = new Random();
-        private int _specialQuestionIndex = -1;   // 本次游戏的特殊题是第几题（1-based），位于前20题内
-        private const int _specialBonus = 2;      // 答对特殊题的额外加分（在原本+1基础上再+2）
-        private bool _isSpecialNow = false;       // 当前是否处于特殊题
+        private int _specialQuestionIndex = -1;   // Welke vraag (1-based) is speciaal, binnen de eerste 20
+        private const int _specialBonus = 2;      // Extra punten bij goede beantwoording van de speciale vraag
+        private bool _isSpecialNow = false;       // Is de huidige vraag speciaal?
 
-        // 记录原始配色，便于恢复
+        // Originele kleuren om na de speciale vraag te herstellen
         private Color _origFormBackColor;
         private Color _origQuestionForeColor;
         private Color _origQuestionBackColor;
@@ -67,7 +67,7 @@ namespace quizGame
         {
             InitializeComponent();
 
-            // 初始化计时器
+            // Timers initialiseren
             _questionTimer = new Timer { Interval = 1000 };
             _questionTimer.Tick += QuestionTimer_Tick;
 
@@ -85,10 +85,11 @@ namespace quizGame
                 lblQuizTime.ForeColor = _timeNormal;
             }
 
-            // 开局跳过按钮可用
+            // Start: knoppen toestaan
             if (btnSkip != null) btnSkip.Enabled = true;
             if (btn5050 != null) btn5050.Enabled = true;
-            // 构建题序并开始
+
+            // Vraagvolgorde opbouwen en starten
             BuildQuestionOrder();
 
             totalQuestions = questionOrder.Count;
@@ -99,26 +100,26 @@ namespace quizGame
                 return;
             }
 
-            // 记录原始配色
+            // Originele thema-kleuren onthouden
             _origFormBackColor = this.BackColor;
             _origQuestionForeColor = lblQuestion.ForeColor;
             _origQuestionBackColor = lblQuestion.BackColor;
 
-            // 生成“特殊题”位置：随机 1..min(20, totalQuestions)
+            // Speciale vraag bepalen: random tussen 1..min(20, aantal vragen)
             int specialMax = Math.Min(20, totalQuestions);
             if (specialMax >= 1)
             {
                 _specialQuestionIndex = _rand.Next(1, specialMax + 1);
             }
 
-            // 从登录态设置玩家名（你项目是强制登录，这里会拿到用户名；兜底保留“Gast”）
+            // Spelersnaam uit login (fallback blijft “Gast”)
             if (Auth.CurrentUser != null && !string.IsNullOrWhiteSpace(Auth.CurrentUser.Username))
                 _playerName = Auth.CurrentUser.Username.Trim();
 
             askQuestion(questionNumber);
         }
 
-        /// <summary>生成本次测验题序（最多 20 题）</summary>
+        /// <summary>Genereer de vraagvolgorde van deze ronde (max. 20 vragen) — alleen vragen met precies 4 antwoorden.</summary>
         private void BuildQuestionOrder()
         {
             int limit = 20;
@@ -126,9 +127,11 @@ namespace quizGame
             {
                 con.Open();
                 using (var cmd = new SqlCommand(@"
-                    SELECT TOP (@n) id
-                    FROM questions
-                    ORDER BY NEWID();", con))
+            SELECT TOP (@n) q.id
+            FROM dbo.questions q
+            WHERE (SELECT COUNT(*) FROM dbo.answers a WHERE a.question_id = q.id) = 4
+            ORDER BY NEWID();
+        ", con))
                 {
                     cmd.Parameters.AddWithValue("@n", limit);
                     using (var r = cmd.ExecuteReader())
@@ -142,10 +145,10 @@ namespace quizGame
             }
         }
 
-        /// <summary>点击答案（所有答案按钮共用）</summary>
+        /// <summary>Klik op een antwoord (gemeenschappelijke handler voor alle antwoordknoppen).</summary>
         private void ClickAnswerEvent(object sender, EventArgs e)
         {
-            // 停止本题计时，避免多减
+            // Stop de vraag-timer om dubbele decrement te voorkomen
             _questionTimer.Stop();
 
             var senderObject = (Button)sender;
@@ -153,8 +156,8 @@ namespace quizGame
 
             if (buttonTag == correctAnswer)
             {
-                score++;                         // 普通题 +1
-                if (_isSpecialNow) score += _specialBonus;  // 特殊题额外 +2
+                score++;                         // Normaal +1
+                if (_isSpecialNow) score += _specialBonus;  // Extra bonus bij speciale vraag
                 correctAnswers++;
                 currentQuestionNumber++;
                 senderObject.BackColor = Color.DarkGreen;
@@ -168,13 +171,13 @@ namespace quizGame
                 WrongAnswersLabel.Text = "Foute antwoorden: " + wrongAnswers;
             }
 
-            // 禁用四个按钮
+            // Alle vier knoppen tijdelijk uit
             button1.Enabled = false;
             button2.Enabled = false;
             button3.Enabled = false;
             button4.Enabled = false;
 
-            // 最后一题？→ 统一收尾
+            // Laatste vraag? -> afronden
             if (questionNumber == totalQuestions)
             {
                 FinishQuiz();
@@ -186,7 +189,7 @@ namespace quizGame
             }
         }
 
-        /// <summary>出题 + 启动计时</summary>
+        /// <summary>Toon vraag + start timers.</summary>
         private void askQuestion(int qnum)
         {
             if (qnum < 1 || qnum > questionOrder.Count) return;
@@ -196,14 +199,14 @@ namespace quizGame
             int qid = questionOrder[qnum - 1];
 
             string questionText = "";
-            int perQuestionSeconds = 15; // 默认单题 15 秒
+            int perQuestionSeconds = 15; // Standaard 15s per vraag
             var answers = new List<Tuple<string, bool>>();
 
             using (var con = new SqlConnection(_cs))
             {
                 con.Open();
 
-                // 题干 + 单题时长
+                // Vraagtekst + individuele tijd per vraag
                 using (var q = new SqlCommand(
                     @"SELECT question_text, per_question_seconds
                       FROM questions WHERE id=@id;", con))
@@ -224,7 +227,7 @@ namespace quizGame
                     }
                 }
 
-                // 四个选项（随机）
+                // Vier willekeurige opties
                 using (var a = new SqlCommand(
                     @"SELECT answer_text, is_correct
                       FROM answers
@@ -271,31 +274,31 @@ namespace quizGame
 
             if (correctAnswer == 0)
             {
-                MessageBox.Show("Antwoord sleutel ontbreekt voor vraag (id=" + qid + ").", "Fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Antwoord-sleutel ontbreekt voor vraag (id=" + qid + ").", "Fout", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            // —— Special Question 标记/样式/音效 —— 
+            // —— Speciale vraag: markering / thema / geluid ——
             _isSpecialNow = (qnum == _specialQuestionIndex);
             if (_isSpecialNow)
             {
-                // 显眼的样式（按需自定义）
+                // Duidelijke stijlwijziging
                 this.BackColor = Color.MediumPurple;
                 lblQuestion.ForeColor = Color.Yellow;
                 lblQuestion.BackColor = Color.FromArgb(32, 0, 0, 0);
 
                 try
                 {
-                    // 若有自带 wav，可改为 new SoundPlayer("special.wav").Play();
+                    // Eventueel vervangen door eigen WAV-bestand
                     SystemSounds.Asterisk.Play();
                 }
-                catch { /* 忽略声音异常 */ }
+                catch { /* Geluidsfout stil negeren */ }
             }
             else
             {
                 RestoreNormalTheme();
             }
 
-            // === 启动“每题倒计时” ===
+            // === Per-vraag aftellen ===
             _qTimeLeft = perQuestionSeconds > 0 ? perQuestionSeconds : 15;
             if (lblQuestionTime != null)
             {
@@ -305,7 +308,7 @@ namespace quizGame
             _questionTimer.Stop();
             _questionTimer.Start();
 
-            // === 启动“整场倒计时”（仅第一次） ===
+            // === Start totaaltimer (alleen één keer) ===
             if (!_quizStarted)
             {
                 _quizStarted = true;
@@ -317,12 +320,11 @@ namespace quizGame
                 _quizTimer.Start();
             }
 
-            // === 跳过按钮：没用过就启用，用过就禁用 ===
+            // === Overslaan: alleen beschikbaar als nog niet gebruikt ===
             if (btnSkip != null) btnSkip.Enabled = !_hasSkipped;
 
-            // 50/50 按钮每题都可使用一次（也可以改成整场一次）
+            // === 50/50: per ronde één keer (of pas aan naar per vraag) ===
             if (btn5050 != null) btn5050.Enabled = !_used5050;
-
         }
 
         private void QuestionTimer_Tick(object sender, EventArgs e)
@@ -341,7 +343,7 @@ namespace quizGame
                 {
                     _questionTimer.Stop();
 
-                    // 超时按错误处理
+                    // Tijd op -> telt als fout
                     wrongAnswers++;
                     WrongAnswersLabel.Text = "Foute antwoorden: " + wrongAnswers;
 
@@ -374,7 +376,7 @@ namespace quizGame
 
                 if (_quizTimeLeft == 0)
                 {
-                    // 整场时间结束
+                    // Totale tijd op -> afronden
                     _questionTimer.Stop();
                     _quizTimer.Stop();
                     FinishQuiz();
@@ -389,18 +391,18 @@ namespace quizGame
             return $"Quiz tijd: {m:00}:{s:00}";
         }
 
-        /// <summary>统一收尾（最后一题 / 单题超时 / 总时到 都调这里）</summary>
+        /// <summary>Centraal afronden (laatste vraag / tijd voorbij / handmatig stoppen).</summary>
         private void FinishQuiz()
         {
             _questionTimer.Stop();
             _quizTimer.Stop();
 
-            // 恢复普通主题
+            // Normaal thema terugzetten
             RestoreNormalTheme();
 
             percentage = (int)Math.Round((double)(100 * score) / Math.Max(1, totalQuestions));
 
-            // 先保存分数到数据库
+            // Score opslaan
             SaveScore(_playerName, score);
 
             var dialogResult = MessageBox.Show(
@@ -413,7 +415,7 @@ namespace quizGame
 
             if (dialogResult == DialogResult.Yes)
             {
-                // 重置所有状态
+                // Complete reset
                 score = 0;
                 correctAnswer = 0;
                 correctAnswers = 0;
@@ -427,7 +429,7 @@ namespace quizGame
                 correctAnswersLabel.Text = "Goede antwoorden: 0";
                 WrongAnswersLabel.Text = "Foute antwoorden: 0";
 
-                // 重置计时
+                // Timers resetten
                 _quizStarted = false;
                 _quizTimeLeft = 180;
                 if (lblQuizTime != null)
@@ -441,11 +443,11 @@ namespace quizGame
                     lblQuestionTime.ForeColor = _timeNormal;
                 }
 
-                // 重置“跳过一次”
+                // Overslaan resetten
                 _hasSkipped = false;
                 if (btnSkip != null) btnSkip.Enabled = true;
 
-                // 重新生成“特殊题”位置（下一局重新随机）
+                // Nieuwe speciale vraag voor de volgende ronde
                 int specialMax = Math.Min(20, totalQuestions);
                 _specialQuestionIndex = specialMax >= 1 ? _rand.Next(1, specialMax + 1) : -1;
 
@@ -526,7 +528,7 @@ namespace quizGame
                 _hasSkipped = false;
                 if (btnSkip != null) btnSkip.Enabled = true;
 
-                // 重新生成“特殊题”位置
+                // Nieuwe speciale vraagpositie
                 int specialMax = Math.Min(20, totalQuestions);
                 _specialQuestionIndex = specialMax >= 1 ? _rand.Next(1, specialMax + 1) : -1;
 
@@ -534,7 +536,7 @@ namespace quizGame
             }
         }
 
-        // 跳过一次按钮
+        // Eén keer overslaan
         private void btnSkip_Click(object sender, EventArgs e)
         {
             if (_hasSkipped)
@@ -546,9 +548,9 @@ namespace quizGame
 
             _hasSkipped = true;
             btnSkip.Enabled = false;
-            _questionTimer.Stop(); // 停止当前题倒计时
+            _questionTimer.Stop(); // Huidige vraag-timer stoppen
 
-            // 不计对错，直接下一题或结束
+            // Geen goed/fout, direct volgende of afronden
             if (questionNumber == totalQuestions)
             {
                 FinishQuiz();
@@ -568,7 +570,7 @@ namespace quizGame
             }
         }
 
-        // ===== 保存分数到 scores（username_snapshot / score / created_at / user_id）=====
+        // ===== Score opslaan naar dbo.scores (username_snapshot / score / created_at / user_id) =====
         private void SaveScore(string username, int scoreValue)
         {
             try
@@ -580,11 +582,11 @@ namespace quizGame
                     int? userId = null;
                     string snapshot = string.IsNullOrWhiteSpace(username) ? "Onbekend" : username.Trim();
 
-                    // 你是强制登录：优先取登录的用户ID
+                    // In jouw app is login verplicht: neem eerst CurrentUser.Id
                     if (Auth.CurrentUser != null)
                         userId = Auth.CurrentUser.Id;
 
-                    // 兜底：如果 CurrentUser 为 null，尝试按用户名查询
+                    // Fallback: lookup op gebruikersnaam
                     if (!userId.HasValue)
                     {
                         using (var find = new SqlCommand("SELECT id FROM dbo.users WHERE username=@u;", con))
@@ -596,7 +598,7 @@ namespace quizGame
                         }
                     }
 
-                    // 最后再兜底一次：如果依旧没有 userId，就创建一个“Guest”用户（可选）
+                    // Nog steeds geen id? Maak een “gast”-record aan (optioneel)
                     if (!userId.HasValue)
                     {
                         using (var insUser = new SqlCommand(
@@ -608,7 +610,7 @@ namespace quizGame
                         }
                     }
 
-                    // 此处 user_id 一定有值，避免 NULL 违反约束
+                    // Nu is user_id gegarandeerd gevuld
                     using (var cmd = new SqlCommand(
                         @"INSERT INTO dbo.scores(user_id, username_snapshot, score, created_at)
                           VALUES(@uid, @u, @s, GETDATE());", con))
@@ -626,9 +628,10 @@ namespace quizGame
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void btn5050_Click(object sender, EventArgs e)
         {
-            // 已用过则禁用
+            // Reeds gebruikt? Dan uitzetten
             if (_used5050)
             {
                 btn5050.Enabled = false;
@@ -639,7 +642,7 @@ namespace quizGame
             _used5050 = true;
             btn5050.Enabled = false;
 
-            // 找出错误的三个答案
+            // Zoek de drie foute opties
             var btns = new[] { button1, button2, button3, button4 };
             var wrongIndices = new List<int>();
 
@@ -649,7 +652,7 @@ namespace quizGame
                 if (tag != correctAnswer) wrongIndices.Add(i);
             }
 
-            // 随机禁用其中两个错误选项
+            // Schakel willekeurig twee van de foute opties uit
             if (wrongIndices.Count >= 2)
             {
                 var rand = new Random();
@@ -661,7 +664,7 @@ namespace quizGame
                 }
             }
 
-            // 留下正确答案和一个错误答案，提升正确率到 50%
+            // Overblijven: juiste antwoord + één fout antwoord => 50% kans
         }
 
         private void btnSpecialQuiz_Click(object sender, EventArgs e)

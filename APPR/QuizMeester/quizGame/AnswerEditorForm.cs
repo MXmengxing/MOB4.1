@@ -200,62 +200,60 @@ namespace quizGame
 
             var dt = (DataTable)dgv.DataSource;
 
-            // —— 校验：恰好 4 条、文本非空、仅 1 条正确 ——
+            // 校验：必须 4 条、文本非空、仅 1 条正确
             if (dt.Rows.Count != 4)
             {
                 MessageBox.Show("Elke vraag moet precies 4 antwoorden hebben.", "Fout",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             if (dt.AsEnumerable().Any(r => string.IsNullOrWhiteSpace(Convert.ToString(r["answer_text"]))))
             {
                 MessageBox.Show("Antwoordtekst mag niet leeg zijn.", "Fout",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            int correctCount = dt.AsEnumerable().Count(r => Convert.ToBoolean(r["is_correct"]));
-            if (correctCount != 1)
+            if (dt.AsEnumerable().Count(r => Convert.ToBoolean(r["is_correct"])) != 1)
             {
                 MessageBox.Show("Er moet precies 1 juist antwoord zijn.", "Fout",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // —— 保存到数据库（简单稳妥：先删本题所有答案，再插入当前 4 条） ——
             try
             {
                 using (var con = new SqlConnection(_cs))
-                using (var tx = con.BeginTransaction(IsolationLevel.ReadCommitted))
                 {
-                    con.Open();
-
-                    // 删除本题所有答案
-                    using (var del = new SqlCommand("DELETE FROM dbo.answers WHERE question_id=@qid;", con, tx))
+                    con.Open();                            // 先打开连接
+                    using (var tx = con.BeginTransaction()) // 再开启事务
                     {
-                        del.Parameters.Add("@qid", SqlDbType.Int).Value = _questionId;
-                        del.ExecuteNonQuery();
-                    }
-
-                    // 插入 4 个
-                    using (var ins = new SqlCommand(
-                        @"INSERT INTO dbo.answers(question_id, answer_text, is_correct)
-                          VALUES(@qid, @t, @c);", con, tx))
-                    {
-                        ins.Parameters.Add("@qid", SqlDbType.Int).Value = _questionId;
-                        var pText = ins.Parameters.Add("@t", SqlDbType.NVarChar, 200);
-                        var pCorrect = ins.Parameters.Add("@c", SqlDbType.Bit);
-
-                        foreach (DataRow r in dt.Rows)
+                        // 先删当前题的所有答案
+                        using (var del = new SqlCommand(
+                            "DELETE FROM dbo.answers WHERE question_id=@qid;", con, tx))
                         {
-                            pText.Value = Convert.ToString(r["answer_text"]).Trim();
-                            pCorrect.Value = Convert.ToBoolean(r["is_correct"]);
-                            ins.ExecuteNonQuery();
+                            del.Parameters.Add("@qid", SqlDbType.Int).Value = _questionId;
+                            del.ExecuteNonQuery();
                         }
-                    }
 
-                    tx.Commit();
+                        // 再插入 4 个答案
+                        using (var ins = new SqlCommand(
+                            @"INSERT INTO dbo.answers(question_id, answer_text, is_correct)
+                      VALUES(@qid, @t, @c);", con, tx))
+                        {
+                            ins.Parameters.Add("@qid", SqlDbType.Int).Value = _questionId;
+                            var pText = ins.Parameters.Add("@t", SqlDbType.NVarChar, 200);
+                            var pCorrect = ins.Parameters.Add("@c", SqlDbType.Bit);
+
+                            foreach (DataRow r in dt.Rows)
+                            {
+                                pText.Value = Convert.ToString(r["answer_text"]).Trim();
+                                pCorrect.Value = Convert.ToBoolean(r["is_correct"]);
+                                ins.ExecuteNonQuery();
+                            }
+                        }
+
+                        tx.Commit();
+                    }
                 }
 
                 MessageBox.Show("Opgeslagen.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -268,5 +266,6 @@ namespace quizGame
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
     }
 }

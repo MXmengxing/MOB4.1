@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 namespace quizGame
 {
     /// <summary>
-    /// 已登录用户信息（运行时存储）
+    /// Ingelogde gebruikersinformatie (tijdelijke opslag tijdens runtime)
     /// </summary>
     public class LoggedInUser
     {
@@ -16,19 +16,20 @@ namespace quizGame
     }
 
     /// <summary>
-    /// 登录与注册逻辑
+    /// Inlog- en registratiefunctionaliteit
     /// </summary>
     public static class Auth
     {
-        // 从 App.config 读取连接字符串
+        // Lees de verbindingsstring uit App.config
         private static readonly string cs =
             ConfigurationManager.ConnectionStrings["QuizDb"].ConnectionString;
 
-        // 当前登录的用户（全局保存）
+        // Globale opslag van de huidige ingelogde gebruiker
         public static LoggedInUser CurrentUser;
 
         /// <summary>
-        /// 注册用户（明文密码写入 password_hash 列——作业允许）
+        /// Registreer een nieuwe gebruiker.
+        /// (Het wachtwoord wordt in platte tekst opgeslagen in de kolom 'password_hash' — toegestaan voor deze opdracht)
         /// </summary>
         public static bool Register(string username, string password, out string error)
         {
@@ -55,7 +56,7 @@ namespace quizGame
                 }
                 catch (SqlException ex)
                 {
-                    // 唯一键冲突（用户名已存在）
+                    // Unieke sleutelconflict (gebruikersnaam bestaat al)
                     if (ex.Number == 2627 || ex.Number == 2601)
                         error = "Gebruikersnaam bestaat al.";
                     else
@@ -66,7 +67,7 @@ namespace quizGame
         }
 
         /// <summary>
-        /// 登录验证
+        /// Controleer de inloggegevens en geef een LoggedInUser terug als ze geldig zijn.
         /// </summary>
         public static LoggedInUser Login(string username, string password)
         {
@@ -88,6 +89,7 @@ namespace quizGame
 
                     string stored = Convert.ToString(r["password_hash"]) ?? string.Empty;
 
+                    // Vergelijk ingevoerd wachtwoord met opgeslagen wachtwoord (platte tekst)
                     if (stored.Trim() == password.Trim())
                     {
                         var user = new LoggedInUser
@@ -97,11 +99,12 @@ namespace quizGame
                             RoleId = Convert.ToInt32(r["role_id"])
                         };
 
-                        // 登录成功 → 全局保存
+                        // Inloggen geslaagd → opslaan als globale sessiegebruiker
                         CurrentUser = user;
                         return user;
                     }
 
+                    // Onjuist wachtwoord
                     return null;
                 }
             }

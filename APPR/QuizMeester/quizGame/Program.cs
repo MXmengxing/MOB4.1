@@ -11,22 +11,23 @@ namespace quizGame
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // --- Toon het inlogvenster ---
             using (var lf = new LoginForm())
             {
-                // 登录窗口：OK 且 Auth.CurrentUser 不为空才继续
+                // Alleen doorgaan als de gebruiker correct heeft ingelogd
                 if (lf.ShowDialog() != DialogResult.OK || Auth.CurrentUser == null)
-                    return;
+                    return; // Stop het programma als inloggen is geannuleerd of mislukt
             }
 
-            // 根据角色跳转
+            // --- Navigeer op basis van de gebruikersrol ---
             if (Auth.CurrentUser.RoleId == 2)
             {
-                // 管理员 → 直接进入管理员界面
+                // Beheerder → open het beheervenster
                 Application.Run(new AdminForm());
             }
             else
             {
-                // 普通用户 → 进入游戏
+                // Gewone gebruiker → start de quiz
                 Application.Run(new Form1());
             }
         }

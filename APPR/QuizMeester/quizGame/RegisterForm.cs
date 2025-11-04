@@ -8,16 +8,22 @@ namespace quizGame
         public RegisterForm()
         {
             InitializeComponent();
+
+            // Basisvensterinstellingen
             this.Text = "QuizMeester - Registreren";
             this.StartPosition = FormStartPosition.CenterScreen;
+
+            // Verberg wachtwoordtekens
             txtPass.UseSystemPasswordChar = true;
             txtPass2.UseSystemPasswordChar = true;
+
+            // Enter-toets activeert registreren
             this.AcceptButton = btnRegister;
         }
 
         private void btnRegister_Click(object sender, EventArgs e)
         {
-            // 基本验证
+            // === Basisvalidatie ===
             if (string.IsNullOrWhiteSpace(txtUser.Text) || string.IsNullOrWhiteSpace(txtPass.Text))
             {
                 MessageBox.Show("Gebruikersnaam en wachtwoord zijn vereist.");
@@ -30,12 +36,12 @@ namespace quizGame
                 return;
             }
 
-            // 调用 Auth 注册方法
+            // === Roep de Auth.Register-methode aan om de gebruiker toe te voegen ===
             string error;
             if (Auth.Register(txtUser.Text, txtPass.Text, out error))
             {
                 MessageBox.Show("Registratie geslaagd! Je kunt nu inloggen.");
-                this.Close(); // 注册成功后关闭窗口
+                this.Close(); // Venster sluiten na succesvolle registratie
             }
             else
             {

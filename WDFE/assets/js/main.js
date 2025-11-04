@@ -6,6 +6,12 @@ function money(x){
   if(n>0.01) return "$"+n.toLocaleString(undefined,{maximumFractionDigits:4});
   return "$"+n.toExponential(2);
 }
+function moneyEUR(x){
+  var n = Number(x); if(!isFinite(n)) return "-";
+  if(n>1) return n.toLocaleString(undefined,{style:"currency",currency:"EUR",maximumFractionDigits:2});
+  if(n>0.01) return "€"+n.toLocaleString(undefined,{maximumFractionDigits:4});
+  return "€"+n.toExponential(2);
+}
 function compactNum(x){
   var n = Number(x); if(!isFinite(n)) return "-";
   if(n>=1e12) return "$"+(n/1e12).toFixed(2)+"T";
@@ -15,24 +21,39 @@ function compactNum(x){
   return "$"+n.toFixed(2);
 }
 
+function fetchEurPerUsd(cb){
+  $.getJSON(API,{action:"rate_eur"})
+    .done(function(res){
+      var r = res && res.data && res.data.rateUsd ? Number(res.data.rateUsd) : 0;
+      var eurPerUsd = r ? (1 / r) : 0;
+      cb(eurPerUsd);
+    })
+    .fail(function(){ cb(0); });
+}
+
 function loadList(){
   if(!$("#all-characters-table").length) return;
-  $.getJSON(API,{action:"list",limit:50})
-   .done(function(resp){
-     var raw = (resp && resp.data) ? resp.data : [];
-     var mapped = $.map(raw, function(c){
-       return {
-         id:c.id, symbol:c.symbol, name:c.name,
-         pricePretty: money(c.priceUsd),
-         marketCapPretty: compactNum(c.marketCapUsd),
-         volume24hPretty: compactNum(c.volumeUsd24Hr)
-       };
-     });
-     var tpl = $("#js-pokemon-template").html();
-     var html = Mustache.render(tpl,{data:mapped});
-     $("#all-characters-table tbody").html(html);
-   })
-   .fail(function(x){ alert("API error: "+x.status); });
+  fetchEurPerUsd(function(eurPerUsd){
+    $.getJSON(API,{action:"list",limit:50})
+      .done(function(resp){
+        var raw = (resp && resp.data) ? resp.data : [];
+        var mapped = $.map(raw, function(c){
+          var usd = Number(c.priceUsd||0);
+          var eur = eurPerUsd ? usd * eurPerUsd : 0;
+          return {
+            id:c.id, symbol:c.symbol, name:c.name,
+            pricePretty: money(usd),
+            pricePrettyEUR: moneyEUR(eur),
+            marketCapPretty: compactNum(c.marketCapUsd),
+            volume24hPretty: compactNum(c.volumeUsd24Hr)
+          };
+        });
+        var tpl = $("#js-pokemon-template").html();
+        var html = Mustache.render(tpl,{data:mapped});
+        $("#all-characters-table tbody").html(html);
+      })
+      .fail(function(x){ alert("API error: "+x.status); });
+  });
 }
 
 var coinChart = null;
@@ -122,6 +143,49 @@ function deleteCoin(btn){
   $.ajax({ type:"POST", url:"includes/delete_coin_db.php", data:{id:id}, success:function(){ getAllCoinsPortfolio(); } });
 }
 
+function loadExchanges(){
+  var grid = $("#exchanges-grid");
+  if(!grid.length) return;
+  $.getJSON(API,{action:"exchanges"})
+    .done(function(resp){
+      var raw = (resp && resp.data) ? resp.data : [];
+      var mapped = $.map(raw, function(x){
+        return {
+          rank: x.rank,
+          name: x.name,
+          volumeUsdPretty: compactNum(x.volumeUsd),
+          exchangeUrl: x.exchangeUrl
+        };
+      });
+      var tpl = $("#js-exchange-template").html();
+      var html = Mustache.render(tpl,{data:mapped});
+      grid.html(html);
+    })
+    .fail(function(x){ alert("Exchanges API error: "+x.status); });
+}
+
+function loadNews(){
+  var grid = $("#news-grid");
+  if(!grid.length) return;
+  $.getJSON("./news_api.php",{pageSize:20})
+    .done(function(resp){
+      var arts = (resp && resp.articles) ? resp.articles : [];
+      for (var i=0;i<arts.length;i++){
+        var a = arts[i];
+        if(a.publishedAt){
+          var d = new Date(a.publishedAt);
+          a.publishedAtPretty = d.toLocaleString();
+        } else {
+          a.publishedAtPretty = "";
+        }
+      }
+      var tpl = $("#js-news-template").html();
+      var html = Mustache.render(tpl,{articles:arts});
+      grid.html(html);
+    })
+    .fail(function(x){ alert("News API error: "+x.status); });
+}
+
 $(document).ready(function(){
   loadList();
   $("#all-characters-table").on("click",".coin-info-btn", function(){ var id=$(this).data("id"); var sym=$(this).data("symbol"); openInfo(id,sym); });
@@ -130,4 +194,6 @@ $(document).ready(function(){
   getAllCoinsPortfolio();
   $(document).on("click",".save-coin-btn", function(){ saveCoin(this); });
   $(document).on("click",".delete-coin-btn", function(){ deleteCoin(this); });
+  loadExchanges();
+  loadNews();
 });

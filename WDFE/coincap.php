@@ -40,6 +40,20 @@ switch ($action) {
     output($res, $debug);
     break;
 
+  case 'exchanges':
+    $limit = isset($_GET['limit']) ? max(1,(int)$_GET['limit']) : 200;
+    $url = 'https://api.coincap.io/v2/exchanges?limit='.$limit;
+    $res = fetch_json($url, get_key());
+    if (!$res['ok']) $res = fallback_exchanges($limit);
+    output($res, $debug);
+    break;
+
+  case 'rate_eur':
+    $url = 'https://rest.coincap.io/v3/rates/euro';
+    $res = fetch_json($url, get_key());
+    output($res, $debug);
+    break;
+
   default:
     fail(400,'unsupported action');
 }
@@ -79,12 +93,12 @@ function get_key(){
 function output($res, $debug){
   if ($debug) { echo json_encode($res); return; }
   if ($res['ok']) { echo json_encode($res['json']); return; }
-  http_response_code(502); echo json_encode(['error'=>'upstream error','code'=>$res['code']??0]); 
+  http_response_code(502); echo json_encode(['error'=>'upstream error','code'=>$res['code']??0]);
 }
 
 function fail($c,$m){ http_response_code($c); echo json_encode(['error'=>$m]); exit; }
 
-/* ---------- Fallback to CoinGecko ---------- */
+/* ---------- Fallbacks using CoinGecko ---------- */
 
 function fallback_list($limit){
   $u = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page='.(int)$limit.'&page=1&sparkline=false&price_change_percentage=24h';
@@ -128,11 +142,35 @@ function fallback_history($id, $days){
   $u = 'https://api.coingecko.com/api/v3/coins/'.rawurlencode($id).'/market_chart?vs_currency=usd&days='.(int)$days.'&interval=daily';
   $r = fetch_json($u, null);
   if (!$r['ok']) return $r;
-  $pairs = $r['json']['prices']; 
+  $pairs = $r['json']['prices'];
   $data = [];
   foreach ($pairs as $p){
     $ts = (int)$p[0]; $price = (float)$p[1];
     $data[] = ['date'=>gmdate('c', $ts/1000), 'priceUsd'=>(string)$price];
+  }
+  return ['ok'=>true,'code'=>200,'json'=>['data'=>$data]];
+}
+
+function fallback_exchanges($limit){
+  $btc = fetch_json('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', null);
+  $btcUsd = ($btc['ok'] && isset($btc['json']['bitcoin']['usd'])) ? (float)$btc['json']['bitcoin']['usd'] : 0.0;
+
+  $u = 'https://api.coingecko.com/api/v3/exchanges?per_page='.(int)$limit.'&page=1';
+  $r = fetch_json($u, null);
+  if (!$r['ok']) return $r;
+
+  $arr = $r['json'];
+  $data = [];
+  $rank = 1;
+  foreach ($arr as $ex){
+    $volBtc = isset($ex['trade_volume_24h_btc']) ? (float)$ex['trade_volume_24h_btc'] : 0.0;
+    $volUsd = $btcUsd ? $volBtc * $btcUsd : 0.0;
+    $data[] = [
+      'rank' => (string)$rank++,
+      'name' => $ex['name'],
+      'exchangeUrl' => isset($ex['url']) ? $ex['url'] : '',
+      'volumeUsd' => (string)$volUsd
+    ];
   }
   return ['ok'=>true,'code'=>200,'json'=>['data'=>$data]];
 }

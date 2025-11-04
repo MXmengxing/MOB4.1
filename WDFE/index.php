@@ -19,6 +19,8 @@
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="cryptoportfolio.php">Crypto portfolio</a></li>
+          <li class="nav-item"><a class="nav-link" href="exchanges.php">Exchanges</a></li>
+          <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
         </ul>
       </div>
     </div>
@@ -41,13 +43,29 @@
         {{#data}}
         <tr data-id="{{id}}" data-symbol="{{symbol}}">
           <td>{{symbol}}</td>
-          <td class="crypto-name">{{name}}</td>``
-          <td class="text-end crypto-price">{{pricePretty}}</td>
+          <td class="crypto-name">{{name}}</td>
+          <td class="text-end crypto-price">
+            <div>{{pricePretty}}</div>
+            <div class="text-muted">{{pricePrettyEUR}}</div>
+          </td>
           <td class="text-end">{{marketCapPretty}}</td>
           <td class="text-end">{{volume24hPretty}}</td>
-          <td><button type="button" class="btn btn-sm btn-secondary coin-info-btn" data-id="{{id}}" data-symbol="{{symbol}}" data-bs-toggle="modal" data-bs-target="#coinModal">Info</button></td>
-          <td><button type="button" class="btn btn-sm btn-primary btn-open-modal-cryptofolio" data-bs-toggle="modal" data-bs-target="#exampleModal">Add to wallet</button></td>
-        </tr>``
+          <td>
+            <button type="button"
+                    class="btn btn-sm btn-secondary coin-info-btn"
+                    data-id="{{id}}" data-symbol="{{symbol}}"
+                    data-bs-toggle="modal" data-bs-target="#coinModal">
+              Info
+            </button>
+          </td>
+          <td>
+            <button type="button"
+                    class="btn btn-sm btn-primary btn-open-modal-cryptofolio"
+                    data-bs-toggle="modal" data-bs-target="#exampleModal">
+              Add to wallet
+            </button>
+          </td>
+        </tr>
         {{/data}}
       </template>
     </tbody>
@@ -100,6 +118,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.1.0/mustache.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="assets/js/main.js"></script>
-
 </body>
 </html>
